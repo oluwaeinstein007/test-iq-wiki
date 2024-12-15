@@ -86,10 +86,10 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 ## Technology Stack
 
 1. **Backend Framework**: [NestJS](https://nestjs.com)
-2. **Database**: PostgreSQL (deployed on Railway)
-3. **Data Fetching**:
-4. **Deployment**: Railway (for hosting API & Database)
-5. **Testing**: Jest (for unit and integration tests)
+2. **Database**: MySQL deployed on [FreeMySQlDatabase] (https://www.freesqldatabase.com/)
+3. **Data Fetching**: [RPC] (https://rpc.frax.com/)
+4. **Deployment**: Vercel
+5. **Testing**: Jest
 6. **Version Control**: GitHub
 
 ---
@@ -126,7 +126,7 @@ https://your-api-url.com/api/v1
 ### Workflow
 
 1. **Fetching Token Events**:
-   - Use FraxScan API to fetch token `Transfer` and `Mint` events.
+   - Use FRPC to fetch transactions and filter for token `Transfer` and `Mint` events.
    - Poll the API at regular intervals to simulate real-time updates.
 2. **Processing Events**:
    - On each event:
@@ -150,7 +150,7 @@ https://your-api-url.com/api/v1
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/token-holders-api.git
+   git clone https://github.com/oluwaeinstein007/test-iq-wiki.git
    ```
 
    ### Project setup
@@ -211,7 +211,7 @@ https://your-api-url.com/api/v1
 
 ## Deployment
 
-1. Deploy the application on **Railway**.
+1. Deploy the application on **Vercel**.
 
 ---
 

@@ -47,7 +47,10 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 
 ### Final Implementation
 
--**Fetching Blocks**: I first got the timestamp of the last record on the address, used that to get the block number (using get Block by timestamp api from fraxscan) set that as fromBlock and then added 25days to the initial timestamp to get the toBlock and then ran that in a loop till when "+25days" is greater than the current timestamp in which I set toBlock to "latest". -**Saving the Timestamp and Block Number**: I saved the timestamp and block number to the database to avoid fetching the same logs again and increasing efficiency and reducing the number of requests to the node. -**Get Logs from RPC**: I used the getLogs method from ethers.js to get the logs from the node. -**Decoding Logs**: I decoded the logs using the abi of the contract.
+- **Fetching Blocks**: I first got the timestamp of the last record on the address, used that to get the block number (using get Block by timestamp api from fraxscan) set that as fromBlock and then added 25days to the initial timestamp to get the toBlock and then ran that in a loop till when "+25days" is greater than the current timestamp in which I set toBlock to "latest".
+- **Saving the Timestamp and Block Number**: I saved the timestamp and block number to the database to avoid fetching the same logs again and increasing efficiency and reducing the number of requests to the node.
+- **Get Logs from RPC**: I used the getLogs method from ethers.js to get the logs from the node.
+- **Decoding Logs**: I decoded the logs using the abi of the contract.
 
 - **Event Handling**:
   - Process each `Transfer` event:
@@ -91,6 +94,7 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 4. **Deployment**: Vercel
 5. **Testing**: Jest
 6. **Version Control**: GitHub
+7. **Documentation**: [Postman Doc] (https://documenter.getpostman.com/view/12625300/2sAYHzFhaP)
 
 ---
 
@@ -113,7 +117,7 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 
 ## API Documentation
 
-### [Postman Documentation] (https://documenter.getpostman.com/view/12625300/2sAYHzFhaP)
+### Postman Documentation
 
 ```
 https://documenter.getpostman.com/view/12625300/2sAYHzFhaP
@@ -137,17 +141,12 @@ https://your-api-url.com/api/v1
 2. **Processing Events**:
    - On each event:
      - Update the sender's and receiver's balances.
-     - If the balance reaches zero, remove the holder from the database.
 3. **Database Storage**:
    - Balances are stored in PostgreSQL with a structure:
-     ```sql
-     CREATE TABLE token_holders (
-       address VARCHAR PRIMARY KEY,
-       balance NUMERIC
-     );
-     ```
+   - Log of the Timestamp and Block saved to prevent rerun of same events
 4. **API Exposure**:
    - Expose a RESTful endpoint to retrieve token holders.
+   - Get log for running the get event log as alternative to cron job
 
 ---
 

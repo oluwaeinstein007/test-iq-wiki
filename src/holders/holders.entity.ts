@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity()
+@Index('idx_address', ['address'])
 export class HoldersEntity {
   @PrimaryGeneratedColumn()
   id: number;

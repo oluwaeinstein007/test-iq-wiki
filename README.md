@@ -91,7 +91,7 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 1. **Backend Framework**: [NestJS](https://nestjs.com)
 2. **Database**: MySQL deployed on [FreeMySQlDatabase] (https://www.freesqldatabase.com/)
 3. **Data Fetching**: [RPC] (https://rpc.frax.com/)
-4. **Deployment**: Vercel
+4. **Deployment**: [Render] (https://test-iq-wiki.onrender.com)
 5. **Testing**: Jest
 6. **Version Control**: GitHub
 7. **Documentation**: [Postman Doc] (https://documenter.getpostman.com/view/12625300/2sAYHzFhaP)
@@ -126,7 +126,7 @@ https://documenter.getpostman.com/view/12625300/2sAYHzFhaP
 ### Base URL
 
 ```
-https://your-api-url.com/api/v1
+https://test-iq-wiki.onrender.com
 ```
 
 ---
@@ -216,7 +216,7 @@ https://your-api-url.com/api/v1
 
 ## Deployment
 
-1. Deploy the application on **Vercel**.
+1. Deploy the application on **Render**.
 
 ---
 

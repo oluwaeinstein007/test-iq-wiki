@@ -216,20 +216,20 @@ export class HoldersService {
 
 
   // @Cron(CronExpression.EVERY_5_MINUTES) I changed to 6 hours to avoid too many requests
-  // @Cron('0 */6 * * *')
-  // async fetchLogsCronJob() {
-  //   // console.log('Cron job started: Fetching logs every 5 minutes');
-  //   console.log('Cron job started: Fetching logs every 6 hours');
+  @Cron('0 */6 * * *')
+  async fetchLogsCronJob() {
+    // console.log('Cron job started: Fetching logs every 5 minutes');
+    console.log('Cron job started: Fetching logs every 6 hours');
 
-  //   const address = '0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543';
+    const address = '0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543';
 
-  //   try {
-  //     const result = await this.getLogs(address);
-  //     console.log(`Cron job completed: ${result.message}`);
-  //   } catch (error) {
-  //     console.error('Cron job failed:', error.message);
-  //   }
-  // }
+    try {
+      const result = await this.getLogs(address);
+      console.log(`Cron job completed: ${result.message}`);
+    } catch (error) {
+      console.error('Cron job failed:', error.message);
+    }
+  }
 
 
 

@@ -233,6 +233,29 @@ export class HoldersService {
   }
 
 
+async getBalances(address?: string, page: number = 1, limit: number = 10): Promise<HoldersEntity[]> {
+  // Define query with optional address condition
+  const query = this.holdersRepository.createQueryBuilder('holders');
+  
+  if (address) {
+      query.where('holders.address = :address', { address });
+  }
+
+  // Calculate pagination offsets
+  const startIndex = (page - 1) * limit;
+
+  // Fetch paginated data directly
+  const data = await query
+      .skip(startIndex)
+      .take(limit)
+      .getMany();
+
+  return data;
+}
+
+
+
+
 
 
 

@@ -29,10 +29,10 @@ describe('HoldersController', () => {
       controllers: [HoldersController],
       providers: [
         {
-          provide: HoldersService, // Provide a mock or real instance of HoldersService
+          provide: HoldersService,
           useValue: {
-            // mock any methods you need from HoldersService here
-            findAll: jest.fn().mockResolvedValue([]), // Example mock method
+            
+            findAll: jest.fn().mockResolvedValue([]), 
           },
         },
       ],

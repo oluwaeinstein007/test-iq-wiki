@@ -113,6 +113,12 @@ To create an **API** that retrieves and maintains a list of all holders of a spe
 
 ## API Documentation
 
+### [Postman Documentation] (https://documenter.getpostman.com/view/12625300/2sAYHzFhaP)
+
+```
+https://documenter.getpostman.com/view/12625300/2sAYHzFhaP
+```
+
 ### Base URL
 
 ```

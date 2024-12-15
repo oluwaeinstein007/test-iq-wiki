@@ -8,6 +8,10 @@ export class HoldersEntity {
   @Column({ unique: true })
   address: string;
 
-  @Column('decimal', { default: 0 })
-  balance: number;
+  // @Column('decimal', { precision: 30, scale: 0, default: 0 })
+  // balance: number;
+
+  @Column('bigint', { default: 0 })
+  balance: bigint;
+
 }

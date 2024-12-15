@@ -1,9 +1,21 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import axios from 'axios';
 import { HoldersEntity } from './holders.entity';
+import { Logger as LoggerEntity } from './logger.entity';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { decodeEventLog } from 'viem';
+// import * as contractABI from './contractABI.json';
+import contractABI from './contractABI.json';
+
+import { ethers, Interface, Log } from 'ethers';
+
+import { Cron, CronExpression } from '@nestjs/schedule';
+
+
+// import * as contractABI from './contractABI.json';
 
 @Injectable()
 export class HoldersService {
@@ -13,71 +25,215 @@ export class HoldersService {
     constructor(
         @InjectRepository(HoldersEntity)
         private holdersRepository: Repository<HoldersEntity>,
+        @InjectRepository(LoggerEntity)
+        private loggerRepository: Repository<LoggerEntity>,
       ) {}
 
-    async getTokenBalance(address: string): Promise<any> {
-        try {
-          const url = `${this.API_BASE_URL}?module=account&action=balance&address=${address}&tag=latest&apikey=${this.API_KEY}`;
-          
-          // Make the HTTP request
-          const response = await axios.get(url);
-    
-          // Handle errors from API response
-          if (response.data.status !== '1') {
-            throw new HttpException(
-              response.data.message || 'Failed to fetch balance',
-              HttpStatus.BAD_REQUEST,
-            );
-          }
+      
 
-          const data = [ { address: address, balance: response.data.result } ];
 
-          //save to database
-            // const holder = new HoldersEntity();
-            // holder.address = address;
-            // holder.balance = response.data.result;
-            // await holder.save();
-
-            const holder = this.holdersRepository.create({ address, balance: response.data.result });
-            await this.holdersRepository.save(holder);
-    
-          return {
-            message: 'Token balance fetched successfully',
-            data,
-          };
-        } catch (error) {
-          throw new HttpException(
-            error.response?.data || 'Failed to fetch token balance',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
+  async getLogs(address: string): Promise<any> {
+    try {
+      // Initialize ethers provider
+      const provider = new ethers.JsonRpcProvider(process.env.BaseURL);
+  
+      // Inject the Logger repository
+      const loggerRepo = this.loggerRepository;
+  
+      // Define constants for timestamp increments
+      const secondsIn25Days = 25 * 24 * 60 * 60;
+      let currentTimestamp = 1709785187; // Starting timestamp
+      let currentBlock: number | undefined;
+      // console.log('im fine1');
+      // Check for the last saved logger entry
+      const lastLogger = await loggerRepo.findOne({
+        where: {},
+        order: { timestamp: 'DESC' },
+      });
+      // console.log('im fine2');
+  
+      if (lastLogger) {
+        console.log('Resuming from the last saved timestamp and block');
+        currentTimestamp = lastLogger.timestamp;
+        currentBlock = lastLogger.blockNumber;
+        // console.log('im fine3');
       }
-
-
-      async getTransactions(address: string, page: number, offset: number, sort: string): Promise<any> {
-        try {
-          const url = `${this.API_BASE_URL}?module=account&action=txlist&address=${address}&startblock=0&endblock=latest&page=${page}&offset=${offset}&sort=${sort}&apikey=${this.API_KEY}`;
-    
-          // Make the HTTP request
-          const response = await axios.get(url);
-    
-          // Handle API-level errors
-          if (response.data.status !== '1') {
-            throw new HttpException(
-              response.data.message || 'Failed to fetch transactions',
-              HttpStatus.BAD_REQUEST,
-            );
-          }
-    
-          // Return formatted response
-          return {
-            message: 'Transactions fetched successfully',
-            transactions: response.data.result, // Include only the 'result' field
-          };
-        } catch (error) {
-          // Catch errors and provide a meaningful fallback message
-          const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch transactions';
-          throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+  
+      while (true) {
+        // Get the starting block using the current timestamp
+        const fromBlock = await this.getBlockByTimestamp(currentTimestamp);
+        if (!fromBlock) throw new Error('Failed to fetch the starting block.');
+  
+        // Calculate the next timestamp (25 days later) and get the corresponding block
+        const nextTimestamp = currentTimestamp + secondsIn25Days;
+  
+        // Check if nextTimestamp is in the future
+        const currentTime = Math.floor(Date.now() / 1000); // Current timestamp
+        const toBlock = nextTimestamp > currentTime
+          ? 'latest' // If the next timestamp is in the future, use 'latest'
+          : await this.getBlockByTimestamp(nextTimestamp); // Else, fetch the block by timestamp
+  
+        if (toBlock === 'latest' || !toBlock) {
+          // Use 'latest' if the block couldn't be fetched for the future timestamp
+          console.log('Using latest block due to future timestamp');
+        } else if (!toBlock) {
+          throw new Error('Failed to fetch the ending block.');
         }
+  
+        // Set up the filter for fetching logs
+        const filter = {
+          address,
+          fromBlock,
+          toBlock,
+        };
+  
+        // Fetch logs
+        console.log(`Fetching logs from block ${fromBlock} to ${toBlock}`);
+        const logs: Log[] = await provider.getLogs(filter);
+        const iface = new Interface(contractABI);
+  
+        // Map to store balances
+        const balances: Map<string, bigint> = new Map();
+  
+        // Process logs
+        logs.forEach((log: Log) => {
+          try {
+            const decoded = iface.parseLog({
+              topics: log.topics,
+              data: log.data,
+            });
+  
+            const { name: event, args } = decoded;
+  
+            if (event === 'Transfer') {
+              const from = args[0];
+              const to = args[1];
+              const amount = BigInt(args[2]);
+  
+              // Deduct balance from 'from' address
+              if (from !== ethers.ZeroAddress) {
+                balances.set(from, (balances.get(from) || BigInt(0)) - amount);
+              }
+  
+              // Add balance to 'to' address
+              balances.set(to, (balances.get(to) || BigInt(0)) + amount);
+            } else if (event === 'Mint') {
+              const to = args[0];
+              const amount = BigInt(args[1]);
+  
+              // Add balance to 'to' address
+              balances.set(to, (balances.get(to) || BigInt(0)) + amount);
+            }
+          } catch (error) {
+            console.error('Error decoding log:', error);
+          }
+        });
+        
+        // Save balances to the database
+        await this.saveBalancesToDatabase(balances);
+  
+        // Save the timestamp and block number for future runs
+        const existingLogger = await this.loggerRepository.findOne({ where: { timestamp: currentTimestamp } });
+        if (!existingLogger) {
+          const newLogger = this.loggerRepository.create({
+            timestamp: currentTimestamp,
+            blockNumber: fromBlock, // Use the current fromBlock as the block number
+          });
+          await this.loggerRepository.save(newLogger);
+        } else {
+          console.log('Logger entry with this timestamp already exists, skipping save.');
+        }
+  
+        // Update timestamp for the next iteration
+        currentTimestamp = nextTimestamp;
+  
+        // Exit the loop if we've reached the latest block
+        const latestBlock = await provider.getBlockNumber();
+        if (toBlock === 'latest' || toBlock >= latestBlock) break;
       }
+      console.log('Logs fetched, balances calculated, and saved successfully');
+      return {
+        message: 'Logs fetched, balances calculated, and saved successfully',
+      };
+    } catch (error) {
+      console.error('Error fetching logs or saving balance:', error);
+      throw new Error('Failed to fetch logs or save balances');
+    }
+  }
+  
+
+  // Function to get a block number by timestamp
+  public async getBlockByTimestamp(timestamp: number): Promise<number | undefined> {
+    try {
+      const apiKey = process.env.FraxApiKey;
+
+      const url = `https://api.fraxscan.com/api`;
+      const params = {
+        module: 'block',
+        action: 'getblocknobytime',
+        timestamp,
+        closest: 'before',
+        apikey: apiKey,
+      };
+
+      // Make the API request
+      const response = await axios.get(url, { params });
+
+      // Return the block number
+      if (response.data && response.data.status === '1') {
+        return parseInt(response.data.result, 10);
+      } else {
+        console.error('Error fetching block by timestamp:', response.data.message || 'Unknown error occurred');
+        return undefined;
+      }
+    } catch (error) {
+      console.error('Error fetching block by timestamp:', error);
+      return undefined;
+    }
+  }
+
+  // Save balances to the database
+  public async saveBalancesToDatabase(balances: Map<string, bigint>) {
+    for (const [holderAddress, balance] of balances.entries()) {
+      const existingHolder = await this.holdersRepository.findOne({
+        where: { address: holderAddress },
+      });
+  
+      if (existingHolder) {
+        existingHolder.balance = BigInt(existingHolder.balance) + balance; 
+        await this.holdersRepository.save(existingHolder);
+      } else {
+        const newHolder = this.holdersRepository.create({
+          address: holderAddress,
+          balance,
+        });
+        await this.holdersRepository.save(newHolder);
+      }
+    }
+  }
+
+  
+
+
+  /**
+   * Cron job that runs every 5 minutes
+   */
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async fetchLogsCronJob() {
+    console.log('Cron job started: Fetching logs every 5 minutes');
+
+    const address = '0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543';
+
+    try {
+      const result = await this.getLogs(address);
+      console.log(`Cron job completed: ${result.message}`);
+    } catch (error) {
+      console.error('Cron job failed:', error.message);
+    }
+  }
+
+
+
+
+
 }

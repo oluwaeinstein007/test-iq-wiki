@@ -215,12 +215,11 @@ export class HoldersService {
   
 
 
-  /**
-   * Cron job that runs every 5 minutes
-   */
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  // @Cron(CronExpression.EVERY_5_MINUTES) I changed to 6 hours to avoid too many requests
+  @Cron('0 */6 * * *')
   async fetchLogsCronJob() {
-    console.log('Cron job started: Fetching logs every 5 minutes');
+    // console.log('Cron job started: Fetching logs every 5 minutes');
+    console.log('Cron job started: Fetching logs every 6 hours');
 
     const address = '0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543';
 
@@ -231,6 +230,7 @@ export class HoldersService {
       console.error('Cron job failed:', error.message);
     }
   }
+
 
 
 async getBalances(address?: string, page: number = 1, limit: number = 10): Promise<HoldersEntity[]> {

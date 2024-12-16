@@ -7,10 +7,6 @@ export class HoldersController {
 
     @Get('logs')
     async getLogs(@Query('address') address: string) {
-        if (!address) {
-        return { error: 'Address is required' };
-        }
-
         return await this.holdersService.getLogs(address);
     }
 

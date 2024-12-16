@@ -1,27 +1,8 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { HoldersService } from './holders.service';
-
-// describe('HoldersService', () => {
-//   let service: HoldersService;
-
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [HoldersService],
-//     }).compile();
-
-//     service = module.get<HoldersService>(HoldersService);
-//   });
-
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { HoldersService } from './holders.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HoldersEntity } from './holders.entity';
-import { Logger as LoggerEntity } from './logger.entity';
+import { HoldersEntity } from './entities/holders.entity';
+import { Logger as LoggerEntity } from './entities/logger.entity';
 
 describe('HoldersService', () => {
   let service: HoldersService;

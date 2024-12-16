@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Index, PrimaryColumn } from 'typeorm';
 
 @Entity()
 @Index('idx_address', ['address'])
@@ -6,7 +6,7 @@ export class HoldersEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @PrimaryColumn({ unique: true }) 
   address: string;
 
   @Column('bigint', { default: 0 })

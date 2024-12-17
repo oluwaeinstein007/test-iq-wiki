@@ -16,8 +16,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([HoldersEntity, Logger]),
   ],
-  // providers: [HoldersService, HoldersCron],
-  providers: [HoldersService, BalanceUtil, BlockByTimestamp],
+  
+  providers: [HoldersService, BalanceUtil, BlockByTimestamp, HoldersCron],
   controllers: [HoldersController]
 })
 export class HoldersModule {}

@@ -102,7 +102,7 @@ export class HoldersService {
   
 
   // Save the timestamp and block number for future runs
-  private async saveLoggerEntry(timestamp: number, blockNumber: number): Promise<void> {
+  public async saveLoggerEntry(timestamp: number, blockNumber: number): Promise<void> {
     const existingLogger = await this.loggerRepository.findOne({ where: { timestamp } });
     if (!existingLogger) {
       const newLogger = this.loggerRepository.create({ timestamp, blockNumber });

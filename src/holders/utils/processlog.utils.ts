@@ -1,5 +1,6 @@
 import { ethers, Interface, Log } from 'ethers';
-import contractABI from '../contractABI/contractABI.json';
+import contractABI from '../abi/contractABI.json';
+
 
 export const processLogs = (logs: Log[]): Map<string, bigint> => {
     const balances: Map<string, bigint> = new Map();

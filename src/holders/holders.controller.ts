@@ -18,11 +18,11 @@ export class HoldersController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     ): Promise<{ message: string; data: any[] }> {
-    const data = await this.holdersService.getBalances(address, page, limit);
-    return {
-        message: 'Data fetched successfully',
-        data: data,
-    };
+        const data = await this.holdersService.getBalances(address, page, limit);
+        return {
+            message: 'Data fetched successfully',
+            data: data,
+        };
     }
 
 

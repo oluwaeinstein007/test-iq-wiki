@@ -15,6 +15,7 @@ describe('HoldersService', () => {
   let loggerRepositoryMock: any;
   let balanceUtilMock: any;
   const TokenAddress: string = process.env.TOKEN_ADDRESS;
+  const TimeStamp = 1709785187;
 
   beforeEach(async () => {
     // Mock the repository methods
@@ -83,11 +84,12 @@ describe('HoldersService', () => {
     // Arrange
     const logs = [{ address: TokenAddress, balance: BigInt(1000) }];
     const balances = new Map<string, bigint>([[TokenAddress, BigInt(1000)]]);
-  
     (processLogs as jest.Mock).mockReturnValue(balances);
 
     const providerMock = {
-      getLogs: jest.fn().mockResolvedValue(logs),
+      getLogs: jest.fn().mockResolvedValue(logs[0].address),
+      
+      // getLogs: jest.fn().mockResolvedValue(address),
       getBlockNumber: jest.fn().mockResolvedValue(5000),
     };
     
@@ -97,7 +99,7 @@ describe('HoldersService', () => {
     await service.getLogs();
 
     // Assert
-    expect(processLogs).toHaveBeenCalledWith(logs);
+    expect(processLogs).toHaveBeenCalledWith(balances);
     expect(balanceUtilMock.saveBalancesToDatabase).toHaveBeenCalledWith(balances);
     expect(providerMock.getLogs).toHaveBeenCalled();
     expect(service['saveLoggerEntry']).toHaveBeenCalled();
@@ -120,14 +122,14 @@ describe('HoldersService', () => {
     // Arrange
     // Mocking loggerRepositoryMock methods
     loggerRepositoryMock.findOne.mockResolvedValue(null);
-    const loggerEntry = { timestamp: 12345, blockNumber: 6789 };
+    const loggerEntry = { timestamp: TimeStamp, blockNumber: 6789 };
   
     // Mock create and save methods
     loggerRepositoryMock.create.mockReturnValue(loggerEntry);
     loggerRepositoryMock.save.mockResolvedValue(loggerEntry);
   
     // Act
-    await service['saveLoggerEntry'](12345, 6789);
+    await service['saveLoggerEntry'](TimeStamp, 6789);
   
     // Assert
     expect(loggerRepositoryMock.create).toHaveBeenCalledWith(loggerEntry);
@@ -137,11 +139,11 @@ describe('HoldersService', () => {
   
   it('should skip saving logger entry if it already exists', async () => {
     // Arrange
-    const existingLogger = { timestamp: 12345, blockNumber: 6789 };
+    const existingLogger = { timestamp: TimeStamp, blockNumber: 6789 };
     loggerRepositoryMock.findOne.mockResolvedValue(existingLogger);
 
     // Act
-    await service['saveLoggerEntry'](12345, 6789);
+    await service['saveLoggerEntry'](TimeStamp, 6789);
 
     // Assert
     expect(loggerRepositoryMock.create).not.toHaveBeenCalled();

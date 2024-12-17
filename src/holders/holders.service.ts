@@ -38,7 +38,7 @@ export class HoldersService {
 
   async getLogs(address: string = this.TokenAddress): Promise<any> {
     try {
-      console.log(address);
+      console.log('address: ' + address);
       const provider = new ethers.JsonRpcProvider(this.BaseURL);
       const loggerRepo = this.loggerRepository;
   

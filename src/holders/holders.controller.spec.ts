@@ -67,8 +67,7 @@ describe('HoldersController', () => {
       jest.spyOn(service, 'getBalances').mockResolvedValue(balances);
   
       const result = await controller.getBalances(address, 1, 10);
-  
-      // Check that the service method was called with correct parameters
+  s
       expect(service.getBalances).toHaveBeenCalledWith(address, 1, 10);
   
       // Ensure the returned object has the correct structure
@@ -81,13 +80,11 @@ describe('HoldersController', () => {
     it('should handle errors and throw NotFoundException if balances are not found', async () => {
       const address = '0xInvalidAddress';
   
-      // Simulate an error from the service
       jest.spyOn(service, 'getBalances').mockRejectedValue(new NotFoundException('Balances not found'));
   
       try {
         await controller.getBalances(address, 1, 10);
       } catch (error) {
-        // Ensure the error is correctly thrown and handled
         expect(error.response.message).toBe('Balances not found');
         expect(error.status).toBe(404);
       }

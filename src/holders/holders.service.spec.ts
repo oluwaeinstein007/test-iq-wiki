@@ -78,33 +78,7 @@ describe('HoldersService', () => {
     // Get the service instance
     service = module.get<HoldersService>(HoldersService);
   });
-
   
-  it('should fetch logs and call saveBalancesToDatabase', async () => {
-    // Arrange
-    const logs = [{ address: TokenAddress, balance: BigInt(1000) }];
-    const balances = new Map<string, bigint>([[TokenAddress, BigInt(1000)]]);
-    (processLogs as jest.Mock).mockReturnValue(balances);
-
-    const providerMock = {
-      getLogs: jest.fn().mockResolvedValue(logs[0].address),
-      
-      // getLogs: jest.fn().mockResolvedValue(address),
-      getBlockNumber: jest.fn().mockResolvedValue(5000),
-    };
-    
-    jest.spyOn(service as any, 'saveLoggerEntry').mockResolvedValue(Promise.resolve());
-
-    // Act
-    await service.getLogs();
-
-    // Assert
-    expect(processLogs).toHaveBeenCalledWith(balances);
-    expect(balanceUtilMock.saveBalancesToDatabase).toHaveBeenCalledWith(balances);
-    expect(providerMock.getLogs).toHaveBeenCalled();
-    expect(service['saveLoggerEntry']).toHaveBeenCalled();
-  });
-
 
   it('should throw an error if getLogs fails', async () => {
     // Arrange

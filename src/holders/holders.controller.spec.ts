@@ -67,7 +67,8 @@ describe('HoldersController', () => {
       jest.spyOn(service, 'getBalances').mockResolvedValue(balances);
   
       const result = await controller.getBalances(address, 1, 10);
-  s
+  
+      // Check that the service method was called with correct parameters
       expect(service.getBalances).toHaveBeenCalledWith(address, 1, 10);
   
       // Ensure the returned object has the correct structure

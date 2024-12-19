@@ -95,7 +95,7 @@ export class HoldersService {
         message: 'Logs fetched, balances calculated, and saved successfully',
       };
     } catch (error) {
-      console.error('Error fetching logs or saving balance:', error);
+      console.log('Error fetching logs or saving balance:', error.message || error);
       throw new Error('Failed to fetch logs or save balances');
     }
   }

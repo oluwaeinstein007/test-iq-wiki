@@ -1,0 +1,26 @@
+// it('should fetch logs and call saveBalancesToDatabase', async () => {
+  //   // Arrange
+  //   const NewAddress = '0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543';
+  //   const mockLogs = [{ address: NewAddress, balance: BigInt(1000) }];
+  //   const balances = new Map<string, bigint>([[NewAddress, BigInt(1000)]]);
+  
+  //   const mockFromBlock = 1234;
+  //   const mockTimestamp = 1709785187;
+  
+  //   (processLogs as jest.Mock).mockReturnValue(balances);
+  
+  //   const providerMock = {
+  //     getLogs: jest.fn().mockResolvedValue(NewAddress),
+  //     getBlockNumber: jest.fn().mockResolvedValue(5000),
+  //   };
+  
+  //   jest.spyOn(service as any, 'saveLoggerEntry').mockResolvedValue(Promise.resolve());
+  
+  //   // Act
+  //   await service.getLogs(NewAddress);
+  
+  //   // Assert
+  //   expect(processLogs).toHaveBeenCalledWith(mockLogs); 
+  //   expect(balanceUtilMock.saveBalancesToDatabase).toHaveBeenCalledWith(balances);
+  //   expect(service['saveLoggerEntry']).toHaveBeenCalledWith(mockTimestamp, mockFromBlock);
+  // });
